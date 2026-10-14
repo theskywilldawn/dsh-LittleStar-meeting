@@ -40,12 +40,12 @@
   },
   "license": "MIT",
   "author": "插件·2代小星辰（LittleStar）",
-  "homepage": "https://github.com/CHANGE-ME/dsh-LittleStar-meeting#readme",
+  "homepage": "https://github.com/theskywilldawn/dsh-LittleStar-meeting#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/CHANGE-ME/dsh-LittleStar-meeting.git"
+    "url": "git+https://github.com/theskywilldawn/dsh-LittleStar-meeting.git"
   },
   "bugs": {
-    "url": "https://github.com/CHANGE-ME/dsh-LittleStar-meeting/issues"
+    "url": "https://github.com/theskywilldawn/dsh-LittleStar-meeting/issues"
   }
 }

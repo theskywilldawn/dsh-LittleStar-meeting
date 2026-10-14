@@ -24,11 +24,11 @@
 设置 → 插件 → 搜索 dsh-littlestar-meeting → 安装
 ```
 
-**从 GitHub 源码**
+**从 GitHub 源码**（还没发到 npm 之前走这条）
 
 ```bash
 # 在 DSH profile 目录下
-pnpm add "github:<你的用户名>/dsh-LittleStar-meeting"
+pnpm add "github:theskywilldawn/dsh-LittleStar-meeting"
 ```
 
 装完重启 DSH 让 host 侧生效（client 侧刷新页面即可）。
