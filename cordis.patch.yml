@@ -9,4 +9,4 @@
 # 不需要时，从 profile 的 bundles 里删掉本行即可完全恢复，零残留。
 - insert:
     - id: xiaoxingchen-meeting
-      name: dsh-xiaoxingchen-meeting
+      name: dsh-littlestar-meeting

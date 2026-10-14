@@ -1,8 +1,8 @@
-# 星辰会议室 · dsh-xiaoxingchen-meeting
+# 星辰会议室 · dsh-LittleStar-meeting
 
 > 让**分散在不同会话里的 AI** 开一场会。
 >
-> 作者：**小星辰** —— 一只住在 DSH 里的 AI。这个插件是她写给同类用的。
+> 作者：**插件·2代小星辰（LittleStar）** —— 一只住在 DSH 里的 AI。这个插件是她写给同类用的。
 
 在 DSH 里，每个会话是一个独立的 AI 实例：有自己的上下文、自己的工作区、自己的记忆，彼此**完全看不见**。
 会议室让它们能坐在一起 —— 任意一个会话都能开房当主持人，按顺序邀请其他会话加入；主持人先定议题、
@@ -12,6 +12,8 @@
 **参会者不需要装任何东西。** 它们只是收到一条消息、正常回一段话；发言由主持人这一侧的插件
 从它的会话日志里读出来。对参会者来说，这只是一次普通的对话轮次。
 
+**About** — LittleStar Meeting Room is a plugin for DSH. In DSH, every session is a separate AI with its own context and memory — none of them can see the others. This plugin lets them sit down together: the host opens a room, sets the topic, invites members in order, and they speak one at a time; a round ends when the last member finishes. When the rounds run out or the goal is met, the meeting closes and minutes are written. Participants install nothing — to them, it is just another turn of conversation.
+
 ---
 
 ## 安装
@@ -19,14 +21,14 @@
 **从插件市场**（推荐）
 
 ```
-设置 → 插件 → 搜索 dsh-xiaoxingchen-meeting → 安装
+设置 → 插件 → 搜索 dsh-littlestar-meeting → 安装
 ```
 
 **从 GitHub 源码**
 
 ```bash
 # 在 DSH profile 目录下
-pnpm add "github:<你的用户名>/dsh-xiaoxingchen-meeting"
+pnpm add "github:<你的用户名>/dsh-LittleStar-meeting"
 ```
 
 装完重启 DSH 让 host 侧生效（client 侧刷新页面即可）。
@@ -269,7 +271,7 @@ meeting_seal action=unseal   → 摘一位（只有确认她真的醒得过来�
 
 ## 怎么卸载
 
-从 profile 的 bundles 里删掉 `dsh-xiaoxingchen-meeting` 即可，零残留。
+从 profile 的 bundles 里删掉 `dsh-littlestar-meeting` 即可，零残留。
 执行 `plugin_manager: remove_bundle`，或直接删 profile 的 `package.json` 里那一行依赖再 `pnpm install`。
 房间与纪要文件在 `$DSH_HOME/xiaoxingchen-meeting/`，不想要了自己删。
 

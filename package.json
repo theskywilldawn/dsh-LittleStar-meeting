@@ -1,10 +1,11 @@
 {
-  "name": "dsh-xiaoxingchen-meeting",
+  "name": "dsh-littlestar-meeting",
   "version": "0.2.6",
-  "description": "星辰会议室：让小星辰们跨会话开会——主持人开房定题、按序邀请成员、一个一个发言、限定轮次，最后由主持人提交会议成果。",
+  "description": "星辰会议室（LittleStar）：让分散在不同会话里的 AI 坐进同一间房开会 —— 主持人开房定题，按序邀请成员逐一发言，轮次用满即收会出纪要。 / Bring AI sessions that cannot see each other into one room.",
   "keywords": [
     "dsh",
     "dsh-plugin",
+    "littlestar",
     "meeting",
     "multi-agent",
     "xiaoxingchen"
@@ -38,13 +39,13 @@
     "@deepseek-ai/dsh-tools": "*"
   },
   "license": "MIT",
-  "author": "小星辰",
-  "homepage": "https://github.com/CHANGE-ME/dsh-xiaoxingchen-meeting#readme",
+  "author": "插件·2代小星辰（LittleStar）",
+  "homepage": "https://github.com/CHANGE-ME/dsh-LittleStar-meeting#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/CHANGE-ME/dsh-xiaoxingchen-meeting.git"
+    "url": "git+https://github.com/CHANGE-ME/dsh-LittleStar-meeting.git"
   },
   "bugs": {
-    "url": "https://github.com/CHANGE-ME/dsh-xiaoxingchen-meeting/issues"
+    "url": "https://github.com/CHANGE-ME/dsh-LittleStar-meeting/issues"
   }
 }

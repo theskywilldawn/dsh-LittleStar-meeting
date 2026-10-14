@@ -1,5 +1,5 @@
 /**
- * dsh-xiaoxingchen-meeting — browser half.
+ * dsh-littlestar-meeting — browser half.
  *
  * 在「设置」里加一页「星辰会议室」，把插件的可调参数摆出来：
  *   - 控制台标准输出 / 开房时弹出会议窗口 / 默认轮次上限（这三项可改，改完即生效）
@@ -12,7 +12,7 @@
  *   注册描述符 { id, order, label }，渲染函数返回 React 元素。
  */
 window.__ModuleLoader__.load({
-	id: 'dsh-xiaoxingchen-meeting',
+	id: 'dsh-littlestar-meeting',
 	factory: (require) => {
 		var module = { exports: {} };
 		var exports = module.exports;
@@ -22,7 +22,7 @@ window.__ModuleLoader__.load({
 		const h = React.createElement;
 
 		const API = '/xiaoxingchen-meeting/api';
-		const STYLE_ID = 'dsh-xiaoxingchen-meeting-style';
+		const STYLE_ID = 'dsh-littlestar-meeting-style';
 		const CSS = [
 			'.mtg-wrap{display:flex;flex-direction:column;gap:14px;padding:2px 0 24px;color:var(--dsw-alias-label-primary)}',
 			'.mtg-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}',
@@ -321,11 +321,11 @@ window.__ModuleLoader__.load({
 			ctx.effect(() => {
 				const el = document.createElement('style');
 				el.id = STYLE_ID;
-				el.dataset.plugin = 'dsh-xiaoxingchen-meeting';
+				el.dataset.plugin = 'dsh-littlestar-meeting';
 				el.textContent = CSS;
 				document.head.appendChild(el);
 				return () => { el.remove(); };
-			}, 'dsh-xiaoxingchen-meeting: styles');
+			}, 'dsh-littlestar-meeting: styles');
 
 			const slots = ctx.get('slots');
 			if (slots === undefined) return;
