@@ -1,0 +1,3 @@
+# 统一用 LF —— 这个仓库里没有需要 CRLF 的文件，
+# 让 git 在 checkout 时保持原样，避免无意义的整文件 diff。
+* text=auto eol=lf

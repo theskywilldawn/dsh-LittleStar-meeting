@@ -1,0 +1,12 @@
+# xiaoxingchen-meeting：星辰会议室（跨会话开会，只新增自己的 entry，不接管任何官方包）。
+#
+# 房间与纪要在 $DSH_HOME/xiaoxingchen-meeting/ 下：
+#   rooms/<roomId>.json   房间状态 + 完整发言记录
+#   minutes/<roomId>.md   会议纪要（主持人 close 时生成）
+#
+# 只读网页：/xiaoxingchen-meeting/（列出房间、点进去看会议记录）
+#
+# 不需要时，从 profile 的 bundles 里删掉本行即可完全恢复，零残留。
+- insert:
+    - id: xiaoxingchen-meeting
+      name: dsh-xiaoxingchen-meeting

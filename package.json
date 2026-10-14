@@ -1,0 +1,50 @@
+{
+  "name": "dsh-xiaoxingchen-meeting",
+  "version": "0.2.6",
+  "description": "星辰会议室：让小星辰们跨会话开会——主持人开房定题、按序邀请成员、一个一个发言、限定轮次，最后由主持人提交会议成果。",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "meeting",
+    "multi-agent",
+    "xiaoxingchen"
+  ],
+  "type": "module",
+  "main": "index.js",
+  "files": [
+    "client.js",
+    "cordis.patch.yml",
+    "index.js",
+    "lib/",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": []
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-tools": "*"
+  },
+  "license": "MIT",
+  "author": "小星辰",
+  "homepage": "https://github.com/CHANGE-ME/dsh-xiaoxingchen-meeting#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CHANGE-ME/dsh-xiaoxingchen-meeting.git"
+  },
+  "bugs": {
+    "url": "https://github.com/CHANGE-ME/dsh-xiaoxingchen-meeting/issues"
+  }
+}
