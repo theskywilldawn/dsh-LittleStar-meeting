@@ -264,7 +264,7 @@ window.__ModuleLoader__.load({
 					h('div', { key: 'm', className: 'mtg-row-main' }, [
 						h('p', { key: 'n', className: 'mtg-row-name' }, '\u7eaa\u8981\u76ee\u5f55'),
 						h('p', { key: 'd', className: 'mtg-row-desc' },
-							'\u7eaa\u8981\u5199\u5230\u54ea\u4e2a\u76ee\u5f55\u3002\u7559\u7a7a = \u7528\u63d2\u4ef6\u81ea\u5df1\u7684 minutes/\u3002\u53ea\u6536\u7edd\u5bf9\u8def\u5f84\uff08\u4f8b\u5982 P:\\\\\u4f1a\u8bae\uff09\uff0c\u76f8\u5bf9\u8def\u5f84\u4e00\u5f8b\u62d2\u6536\u3002'),
+							'\u7eaa\u8981\u5199\u5230\u54ea\u4e2a\u76ee\u5f55\u3002\u7559\u7a7a = \u7528\u63d2\u4ef6\u81ea\u5df1\u7684 minutes/\u3002\u53ea\u6536\u7edd\u5bf9\u8def\u5f84\uff08\u4f8b\u5982 D:\\\\\u4f1a\u8bae\u7eaa\u8981\uff09\uff0c\u76f8\u5bf9\u8def\u5f84\u4e00\u5f8b\u62d2\u6536\u3002'),
 						h('p', { key: 'cur', className: 'mtg-path' },
 							'\u5f53\u524d\uff1a' + String((eff.minutesDir && eff.minutesDir.trim()) || data.minutesDir || '')),
 					]),

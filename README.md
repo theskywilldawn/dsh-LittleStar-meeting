@@ -68,7 +68,7 @@ meeting_say           → 主持人自己往记录里插一句（不占发言位
 meeting_status        → 看进度、每位发过几次言、下一位该谁
 meeting_extend        → 轮次不够时再加几轮
 meeting_close         → 收会：生成纪要（markdown 落盘）+ 返回交给主持人的正文
-meeting_seal          → 维护「封存名单」：谁已经安息、请不动（归档状态自动读，封存理由由人记）
+meeting_seal          → 维护「封存名单」：谁已经封存、请不动（归档状态自动读，封存理由由人记）
 meeting_forget        → 清理已结束的房间
 meeting_selftest      → 通道自检：投一条探针，看能不能收回来
 ```
@@ -218,14 +218,14 @@ Agent，而不是自己开房 —— 因为"邀请谁"这件事需要模型先�
 | 日志 < 2 MB | 正常 | 随便请 |
 | ℹ️ 2–8 MB（偏大，首字会慢些） | 只是首字慢一点 | 照常请，`waitSeconds` 留够 |
 | ℹ️ ≥ 8 MB（很大，首字会慢） | 同上，程度更深 | **照样请得动** —— 实测 8.1 MB 的成员 41 秒答完，是全场最快 |
-| ⛔ 已封存（安息） | 在 DSH 里**已归档**的会话 | **请不动**，`meeting_open` 直接拒绝 |
+| ⛔ 已封存 | 在 DSH 里**已归档**的会话 | **请不动**，`meeting_open` 直接拒绝 |
 
 体量是每次 `meeting_roster` 自动量的（只读 `stat`，不解压、不读内容）；「已封存」量不出来，是人记的 —— 用 `meeting_seal` 维护：
 
 ```
 meeting_seal action=list     → 看名单
 meeting_seal action=seal     → 记一位（session 给编号或 id，reason 写清为什么）
-meeting_seal action=unseal   → 摘一位（只有确认她真的醒得过来才该摘）
+meeting_seal action=unseal   → 摘一位（只有确认它真的醒得过来才该摘）
 ```
 
 **谁能开口，由 DSH 的归档状态决定，跟日志大小没关系**（2026-10-14 用受控测试推翻了这个旧结论）：
@@ -280,18 +280,18 @@ meeting_seal action=unseal   → 摘一位（只有确认她真的醒得过来�
 ## 自检
 
 ```powershell
-# 纯逻辑单测（共 92 项）
-node U:\DSH-work\会议室\test-meeting.mjs      # 状态机 + 投递窗口化/软限制（25）
-node U:\DSH-work\会议室\test-relay.mjs        # 跨会话投递假宿主（20）
-node U:\DSH-work\会议室\test-config.mjs       # 配置白名单与区间夹取（15）
-node U:\DSH-work\会议室\test-live.mjs         # 会场实况页面与注入防御（14）
-node U:\DSH-work\会议室\test-inventory.mjs    # 会话体量盘点（10）
-node U:\DSH-work\会议室\test-webport.mjs      # 会场地址探测（8）
+# 纯逻辑单测（共 92 项，在开发机的工作目录里跑）
+node test-meeting.mjs      # 状态机 + 投递窗口化/软限制（25）
+node test-relay.mjs        # 跨会话投递假宿主（20）
+node test-config.mjs       # 配置白名单与区间夹取（15）
+node test-live.mjs         # 会场实况页面与注入防御（14）
+node test-inventory.mjs    # 会话体量盘点（10）
+node test-webport.mjs      # 会场地址探测（8）
 
 # 离线 boot 集成自检（28 项）：用假 ctx 把插件完整 boot 一遍，
 # 再走 名册 → 开会 → 发言 → 轮次 → 收会 → 封存拦截 → /meeting 命令 全流程。
 # 因为 host 代码改动要重启才生效，这个脚本是重启前的最后一道保险。
-node U:\DSH-work\会议室\boot-check\check.mjs
+node boot-check\check.mjs
 ```
 
 装完之后在任意会话里跑 `meeting_selftest`，能收到回话就说明通道是通的。

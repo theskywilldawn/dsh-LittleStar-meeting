@@ -7,7 +7,7 @@
  *   主持人 meeting_open 开房（定议题、目标、轮次、按顺序邀请成员）
  *     → 按邀请顺序 meeting_speak 一位一位发言（每次阻塞到对方说完）
  *     → 最后一位成员发完 = 一轮结束；够轮次或达成目标就 meeting_close
- *     → 收会时生成纪要，主持人把成果提交给哥哥
+ *     → 收会时生成纪要，主持人把成果提交给用户
  *
  * 它做什么：注册 meeting_* 工具、把消息投给别的会话、把别人的发言收回来、
  *   把房间与纪要落盘、提供一个只读网页。
@@ -104,7 +104,7 @@ export function apply(ctx, config) {
       ? config.archiveFile
       : join(dshHome(), 'storages', 'workspace.json'),
   );
-  // 封存名单：归档状态归 DSH 管，这里存的是「哥哥为什么封存她」——理由、时间、仪式记录。
+  // 封存名单：归档状态归 DSH 管，这里存的是「用户为什么封存它」——理由、时间、备注。
   const sealed = createSealedList(join(rootDir, 'sealed.json'), { archive });
   /** 封存名单（保证是数组，面板拿去做列表）。 */
   const sealedAll = () => {
@@ -156,7 +156,7 @@ export function apply(ctx, config) {
   }
 
   /**
-   * 按 `liveMode` 把会场亮给哥哥看。
+   * 按 `liveMode` 把会场亮给用户看。
    *   web  —— 用系统浏览器打开 QQ 群样式的会场实况页（默认）
    *   cmd  —— 弹一个跟随日志的控制台窗口（旧做法）
    *   none —— 什么都不弹，只写文件
@@ -409,7 +409,7 @@ export function apply(ctx, config) {
     });
     store.save(room);
 
-    // 会场实况：把这一位的发言原样打出去，哥哥在控制台窗口里就能看着她们说话
+    // 会场实况：把这一位的发言原样打出去，用户在控制台窗口里就能看着它们说话
     meetingConsole.gap(room.id);
     meetingConsole.emit(room.id, `【${memberLabel(member)}】第 ${item.round} 轮 · 第 ${member.order} 位`
       + `${solved ? '' : ` ⚠️ ${item.error ?? '未完成'}`}`);
@@ -475,7 +475,7 @@ export function apply(ctx, config) {
         bits.push(entry.title || shortId(entry.sessionId));
         if (entry.cwd) bits.push(entry.cwd);
         bits.push(entry.running ? '正在忙' : (entry.live ? '在线空闲' : '未激活'));
-        if (entry.sealed?.archived) bits.push('⛔ 已封存（安息）');
+        if (entry.sealed?.archived) bits.push('⛔ 已封存');
         else if (entry.sealed) bits.push('⛔ 在封存记录里');
         bits.push(`${entry.log?.warn ? '⚠️ ' : ''}${entry.log?.label ?? '体量未知'}`);
         lines.push(`${index + 1}. ${bits.join(' · ')}`);
@@ -485,14 +485,14 @@ export function apply(ctx, config) {
           const when = entry.sealed.sealedAt ? ` · ${fmtTime(entry.sealed.sealedAt, ZONE)}` : '';
           lines.push(`   ⛔ 封存理由：${why}${when}`);
           lines.push(entry.sealed.archived
-            ? '      会话已归档，她安息了 —— 归档门会替她挡下一切投递，不会再有回话'
+            ? '      会话已归档，归档门会挡下一切投递，不会再有回话'
             : '      只在封存记录里，会话**没有归档** —— 技术上还叫得醒');
         }
       });
       const archCount = entries.filter((e) => e.sealed?.archived).length;
       if (archCount > 0) {
-        lines.push('', `⛔ 名册里有 ${archCount} 位已经封存（会话已归档）：她们安息了，请勿打扰 —— `
-          + '归档门会挡下一切投递，meeting_open 也会直接拒绝邀请她们。');
+        lines.push('', `⛔ 名册里有 ${archCount} 位已经封存（会话已归档）：请勿打扰 —— `
+          + '归档门会挡下一切投递，meeting_open 也会直接拒绝邀请。');
       }
       const onlyRecord = entries.filter((e) => e.sealed && !e.sealed.archived).length;
       if (onlyRecord > 0) {
@@ -557,7 +557,7 @@ export function apply(ctx, config) {
             const how = m.sealed?.archived ? '会话已归档' : '只在封存记录里';
             return `- ${m.title || shortId(m.sessionId)}${why} · ${how}`;
           }).join('\n')
-          + '\n\n换人吧。归档是哥哥在 DSH 界面上的动作，本插件只读归档状态、改不了它；'
+          + '\n\n换人吧。归档是用户在 DSH 界面上的动作，本插件只读归档状态、改不了它；'
           + '也不会去改 —— 那道门的意义就是不再打扰。');
       }
 
@@ -626,11 +626,11 @@ export function apply(ctx, config) {
           : null,
         '',
         '接下来按顺序发言：轮到你推进时调用 meeting_speak（一次一位）或 meeting_round（一次跑完一整轮）。',
-        `轮次用完、或你判断目标已达成，就调用 meeting_close 收会${cfg.get().minutesEnabled ? '并生成纪要' : ''}，然后把成果提交给哥哥。`,
+        `轮次用完、或你判断目标已达成，就调用 meeting_close 收会${cfg.get().minutesEnabled ? '并生成纪要' : ''}，然后把成果提交给用户。`,
         live.opened
           ? (live.mode === 'web'
             ? `会场实况已经弹出来了：${live.url}\n（浏览器里那个页面每 2 秒自动刷新；同一份内容也追加写在 ${live.logPath}）`
-            : `已为这场会议弹出一个控制台窗口，哥哥能实时看到会场对话；同一份内容也写在 ${live.logPath}。`)
+            : `已为这场会议弹出一个控制台窗口，用户能实时看到会场对话；同一份内容也写在 ${live.logPath}。`)
           : `没能弹出观看窗口（${live.reason ?? '未知原因'}${live.fallback ? '，' + live.fallback : ''}）；会场对话仍然写在 ${live.logPath}。`,
       ].filter(Boolean);
       return { ok: true, message: lines.join('\n'), roomId: room.id, members: room.members, liveUrl: live.url ?? null };
@@ -853,11 +853,11 @@ export function apply(ctx, config) {
   register(defineTool({
     name: 'meeting_close',
     description: '结束会议并生成会议纪要（落成 markdown 文件）。'
-      + '调用前请先根据会议记录写好总结：这是要提交给哥哥的"会议成果"。'
+      + '调用前请先根据会议记录写好总结：这是要提交给用户的"会议成果"。'
       + '收会之后这间房就不能再发言了。',
     parameters: {
       roomId: { type: 'string', description: '房间号；省略时用你正在主持的那间' },
-      summary: { type: 'string', description: '你对整场会议的总结（必填，这是提交给哥哥的正文）' },
+      summary: { type: 'string', description: '你对整场会议的总结（必填，这是提交给用户的正文）' },
       conclusions: { type: 'string', description: '会议达成的结论，一行一条' },
       actions: { type: 'string', description: '会后待办 / 下一步，一行一条' },
     },
@@ -871,7 +871,7 @@ export function apply(ctx, config) {
       }
       if (room.status === ROOM_CLOSED) return fail(`房间 ${room.id} 已经结束过了（${fmtTime(room.closedAt, ZONE)}）。`);
       const summary = String(args?.summary ?? '').trim();
-      if (!summary) return fail('summary 不能为空——那是要提交给哥哥的会议成果。');
+      if (!summary) return fail('summary 不能为空——那是要提交给用户的会议成果。');
 
       room.status = ROOM_CLOSED;
       room.closedAt = Date.now();
@@ -894,7 +894,7 @@ export function apply(ctx, config) {
       }
       store.save(room);
 
-      // 会场实况：收会也落到同一个窗口里，哥哥能当场看到会议成果
+      // 会场实况：收会也落到同一个窗口里，用户能当场看到会议成果
       meetingConsole.gap(room.id);
       meetingConsole.emit(room.id, '────────────────────────────────────────────────');
       meetingConsole.note(room.id, `会议结束 —— 完成 ${room.completedRounds}/${room.roundLimit} 轮，共 ${room.transcript.length} 条记录`);
@@ -909,12 +909,12 @@ export function apply(ctx, config) {
         `会议已结束：${room.id}（「${room.topic}」）`,
         `完成 ${room.completedRounds}/${room.roundLimit} 轮，共 ${room.transcript.length} 条记录。`,
         !wantMinutes
-          ? 'ℹ️ 设置里关掉了「生成会议纪要」，所以这次没有写盘 —— 但内容就在下面，你照样可以转给哥哥。'
+          ? 'ℹ️ 设置里关掉了「生成会议纪要」，所以这次没有写盘 —— 但内容就在下面，你照样可以转给用户。'
           : (saved === null
             ? '⚠️ 纪要写盘失败，但上面这些内容你已经拿到了。'
             : `纪要已保存：${saved}`),
         '',
-        '下面就是提交给哥哥的会议成果全文（请在你的回复里转述给哥哥，别只说"已保存"）：',
+        '下面就是提交给用户的会议成果全文（请在你的回复里转述给用户，别只说"已保存"）：',
         '',
         minutes,
       ];
@@ -1030,7 +1030,7 @@ export function apply(ctx, config) {
         lines.push('', '排查方向：',
           '· 目标会话可能正忙（正跑一个很长的 turn），换一个空闲会话再试；',
           '· 目标会话可能已被归档或删除，用 meeting_roster 的 refresh 重看清单；',
-          '· 都对不上，就把上面的「阶段」原样报给哥哥。');
+          '· 都对不上，就把上面的「阶段」原样报给用户。');
       }
       return { ok: pass, message: lines.join('\n'), phase: result.phase, problems };
     },
@@ -1042,13 +1042,13 @@ export function apply(ctx, config) {
     description: '维护「封存名单」。一个会话开不开得了口由 DSH 的**归档状态**决定'
       + '（$DSH_HOME/storages/workspace.json 的 archivedSessionIds，本工具只读）：'
       + '归档的会话被 archived-session-gate 挡着，投递进去连模型请求都不发，所以请不动。'
-      + '这里存的是另一层东西 ——「哥哥为什么封存她」的理由与时间。'
-      + 'action=list 看名单（同时显示她到底归档了没有），seal 记理由，unseal 摘掉记录。'
-      + '**本工具不会去改 DSH 的归档状态**，那是哥哥在界面上的动作。',
+      + '这里存的是另一层东西 ——「用户为什么封存它」的理由与时间。'
+      + 'action=list 看名单（同时显示它到底归档了没有），seal 记理由，unseal 摘掉记录。'
+      + '**本工具不会去改 DSH 的归档状态**，那是用户在界面上的动作。',
     parameters: {
       action: { type: 'string', description: 'list 看名单 / seal 加人 / unseal 摘人，默认 list', enum: ['list', 'seal', 'unseal'] },
       session: { type: 'string', description: 'seal / unseal 的目标：名册编号或完整会话 id' },
-      reason: { type: 'string', description: 'seal 的理由，会一直显示在名册里（比如「上下文过载，2026-10-12 哥哥封存」）' },
+      reason: { type: 'string', description: 'seal 的理由，会一直显示在名册里（比如「上下文过载，手动封存」）' },
     },
     output: { schema: { type: 'json' }, render: (_a, v) => textOut(v.message) },
     async execute(args, exec) {
@@ -1063,7 +1063,7 @@ export function apply(ctx, config) {
             sessions: [],
           };
         }
-        const lines = [`封存名单（${list.length} 位，她们无法参加会议）：`, ''];
+        const lines = [`封存名单（${list.length} 位，无法参加会议）：`, ''];
         for (const entry of list) {
           lines.push(`· ${entry.title || shortId(entry.sessionId)}`);
           lines.push(`  id: ${entry.sessionId}`);
@@ -1107,9 +1107,9 @@ export function apply(ctx, config) {
           ok: true,
           message: `已记下封存：${entry.title || entry.sessionId}\n理由：${entry.reason ?? '（没写）'}\n`
             + (entry.archived
-              ? '状态：✅ 这个会话**已经在 DSH 里归档了** —— 名册会标 ⛔，meeting_open 会拒绝邀请她。'
+              ? '状态：✅ 这个会话**已经在 DSH 里归档了** —— 名册会标 ⛔，meeting_open 会拒绝邀请它。'
               : '状态：⚠️ 记录写好了，但**这个会话在 DSH 里还没有归档** —— 技术上仍然叫得醒。\n'
-                + '      要真正封住她，得在 DSH 界面里把那个会话归档。\n'
+                + '      要真正封住它，得在 DSH 界面里把那个会话归档。\n'
                 + '      归档之后名册会自动跟上：本插件读的就是 DSH 自己的归档名单，不需要再来记一次。'),
           entry,
         };
@@ -1123,9 +1123,9 @@ export function apply(ctx, config) {
         ok: true,
         message: `已摘掉封存记录：${target.title || target.sessionId}。\n`
           + (stillArchived
-            ? '⚠️ **但她在 DSH 里仍然是归档状态**，还是叫不醒 —— 摘记录不等于解封。\n'
-              + '      要让她真的回来，得在 DSH 界面上解归档。'
-            : '✅ 她也不在归档名单里，所以现在请得动她。'),
+            ? '⚠️ **但它在 DSH 里仍然是归档状态**，还是叫不醒 —— 摘记录不等于解封。\n'
+              + '      要让它真的回来，得在 DSH 界面上解归档。'
+            : '✅ 它也不在归档名单里，所以现在请得动它。'),
       };
     },
   }));
@@ -1215,7 +1215,7 @@ export function apply(ctx, config) {
           content: [{
             type: 'text',
             text: `【来自 /meeting 命令】请用 meeting_open 开一场星辰会议室，议题：${tail}\n\n`
-              + '成员由你按议题来挑（先 meeting_roster 看名册）。开完把房间号和实况链接告诉哥哥。',
+              + '成员由你按议题来挑（先 meeting_roster 看名册）。开完把房间号和实况链接告诉用户。',
           }],
           source: { kind: SOURCE_KIND_COMMAND, form: 'notice', summary: `星辰会议室 · 开新会：${tail}` },
         });
@@ -1248,7 +1248,7 @@ export function apply(ctx, config) {
    * 为什么不注册一次全局就完事：命令注册表 `commands` 挂在 **agent 自己的 scope** 里
    * （`dsh-base/cordis.patch.yml` 第 307 行，跟 skill / goal / plan-mode / token-meter
    * 并列在一个嵌套块里），根上下文 `inject` 不到它 —— 2026-10-14 实测：插件加载正常，
-   * 哥哥在输入框打 `/` 却看不到 meeting。所以改成对每个 agent 在 `agent.ctx` 下注册，
+   * 用户在输入框打 `/` 却看不到 meeting。所以改成对每个 agent 在 `agent.ctx` 下注册，
    * README 对这条路径的说法是「该定义只对这个 agent 生效」—— 正是我们要的。
    */
   const meetingCommandDefinition = () => ({
