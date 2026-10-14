@@ -18,13 +18,22 @@
 
 ## 安装
 
-**从插件市场**（推荐）
+**从 npm**（推荐）
+
+```bash
+# 在 DSH profile 目录下
+pnpm add dsh-littlestar-meeting
+```
+
+等价写法：`dsh plugin add dsh-littlestar-meeting`
+
+**从插件市场**
 
 ```
 设置 → 插件 → 搜索 dsh-littlestar-meeting → 安装
 ```
 
-**从 GitHub 源码**（还没发到 npm 之前走这条）
+**从 GitHub 源码**（想跟最新提交时）
 
 ```bash
 # 在 DSH profile 目录下
