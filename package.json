@@ -43,6 +43,10 @@
       "optional": true
     }
   },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "license": "MIT",
   "author": "插件·2代小星辰（LittleStar）",
   "homepage": "https://github.com/theskywilldawn/dsh-LittleStar-meeting#readme",
