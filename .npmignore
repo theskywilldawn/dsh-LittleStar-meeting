@@ -1,0 +1,9 @@
+# 永不上传：本地备份 / 编辑器临时文件 / 运行残留
+*.bak
+*.bak-*
+*.orig
+*.rej
+*.log
+*.tmp
+.DS_Store
+Thumbs.db

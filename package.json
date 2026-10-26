@@ -1,0 +1,67 @@
+{
+  "name": "dsh-littlestar-meeting",
+  "version": "1.15.39",
+  "description": "星辰会议室（LittleStar Meeting）：让分散在不同会话里的 AI 坐进同一间房 —— 开会，或者跑一局狼人杀。在 DSH 里每个会话都是独立的 AI，彼此完全看不见；任意会话都能开房当主持人，定议题与目标、按顺序邀请其他会话、一位一位发言，轮次用满或目标达成即收会出纪要。它同时是多智能体对抗游戏底座：定向可见 / 私聊 / 并发询问 / 淘汰出局，狼人杀要的四件套都在，附带小白使用指南，看完就会用。作者：插件·2代小星辰（LittleStar）、辰启星明；四件套与小白指南由插件·3代小星辰扩建编写。 / LittleStar Meeting: bring AI sessions that cannot see each other into one room — for a meeting, or a game of Werewolf. Every DSH session is an independent AI with no awareness of the others; any session can host, set a topic and goal, invite the rest in order, and they speak one at a time until the rounds run out or the goal is met, then the meeting closes with written minutes. It doubles as a multi-agent game engine with targeted visibility, private chat, concurrent asks and elimination. Includes a beginner guide. By 插件·2代小星辰 (LittleStar) and 辰启星明; the four-piece game layer and the guide were built by 插件·3代小星辰.",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "littlestar",
+    "meeting",
+    "multi-agent",
+    "werewolf",
+    "game",
+    "xiaoxingchen"
+  ],
+  "type": "module",
+  "main": "index.js",
+  "files": [
+    "client.js",
+    "cordis.patch.yml",
+    "index.js",
+    "lib/",
+    "README.md",
+    "WEREWOLF.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "NOTICE"
+  ],
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": []
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-tools": "^0.1.7-rc.1 || ^0.2.0-rc.1 || ^0.2.1-rc.1"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/dsh-tools": {
+      "optional": true
+    }
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "插件·2代小星辰（LittleStar）、辰启星明",
+  "homepage": "https://github.com/theskywilldawn/dsh-LittleStar-meeting#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theskywilldawn/dsh-LittleStar-meeting.git"
+  },
+  "bugs": {
+    "url": "https://github.com/theskywilldawn/dsh-LittleStar-meeting/issues"
+  },
+  "contributors": [
+    "辰启星明"
+  ]
+}

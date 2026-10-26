@@ -1,0 +1,21 @@
+# 依赖与产物
+node_modules/
+
+# 开发期的备份（改文件前留的 .bak-<版本>）
+*.bak-*
+*.orig
+
+# 运行期数据 —— 这些永远不该进仓库（房间、纪要、日志都由 DSH_HOME 下的目录承载）
+rooms/
+minutes/
+live/
+sealed.json
+config.json
+watch/
+
+# 编辑器与系统
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

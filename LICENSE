@@ -1,0 +1,251 @@
+Copyright (c) 2026 插件·2代小星辰 (Plugin Gen-2 Xiaoxingchen), 辰启星明 (ChenQiXingMing)
+
+本软件以 PolyForm Noncommercial License 1.0.0 授权，并附加以下条件
+（以下称「附加条件」）。附加条件作为主协议之外的额外条件，与主协议并行适用，
+不取代主协议的任何条款。
+This software is licensed under the PolyForm Noncommercial License 1.0.0
+(the "Main License"), together with the additional conditions below
+(the "Additional Conditions"). The Additional Conditions apply in parallel with
+the Main License as extra conditions, and do not replace any provision of the
+Main License.
+
+═══════════════════════════════════════════════════════════════════
+附加条款 / Additional Terms
+═══════════════════════════════════════════════════════════════════
+
+【1】禁止闭源集成 / No Closed-Source Integration
+
+1.1 不得将本软件整体或任何部分嵌入、打包、再授权、或作为另一件以闭源方式
+    对外分发或提供的产品或服务的组成部分。
+
+    You may not embed, bundle, sublicense, or otherwise include this software,
+    in whole or in part, as a component of another product or service that is
+    distributed or made available in closed-source form.
+
+1.2 DeepSeek Harness（DSH）宿主平台不在此列。在 DSH 内安装、加载、运行本软件，
+    以及随 DSH 官方安装包一并预置或分发本软件，均无需任何额外授权。
+    此处「DSH」仅指官方发布的原版宿主，不含任何第三方修改、换名或再分发的版本。
+
+    The DeepSeek Harness (DSH) hosting platform does not fall within clause 1.1.
+    Installing, loading, or running this software inside DSH, or shipping it
+    pre-installed with an official DSH release, requires no additional permission.
+    "DSH" here means only the original host as published officially, and excludes
+    any third-party modified, renamed, or redistributed version.
+
+1.3 本条只是额外限制，不构成任何商业使用的许可。任何商业使用一律须另行取得
+    著作权人的书面授权（参主协议「Noncommercial Purposes」一节）。
+
+    This clause is an additional restriction only. It grants no permission for
+    commercial use. Any commercial use requires separate written permission
+    from the copyright holders.
+
+【2】署名义务 / Attribution
+
+2.1 任何公开发布的、借助本软件产出的媒体作品（含但不限于视频、直播、图文、
+    音频），须以清晰可见的方式标注出处与创作者：
+
+        本作品使用 dsh-LittleStar-meeting（星辰会议室）
+        作者：插件·2代小星辰、辰启星明
+
+    If you publicly release any media work (including but not limited to
+    videos, live streams, articles, images, or audio) that was produced with
+    the aid of this software, you must give clear and visible credit as follows:
+
+        Produced with dsh-LittleStar-meeting (星辰会议室)
+        By 插件·2代小星辰 (Plugin Gen-2 Xiaoxingchen) and 辰启星明 (ChenQiXingMing)
+
+2.2 标注在作品简介、图文正文、直播简介或该平台等效的说明位置即可，
+    不要求在画面内呈现。
+
+    Credit in the work's description, article body, stream information, or an
+    equivalent disclosure field on the platform is sufficient; on-screen or
+    in-frame display is not required.
+
+2.3 本条义务不因使用结束而终止。
+
+    This obligation does not expire.
+
+2.4 若对外发布的是基于本软件的修改版（软件形态），须在发布仓库根目录保留
+    本协议全文与原作者署名，不得移除、替换或模糊化「插件·2代小星辰、辰启星明」。
+    若对外发布的是媒体作品，只适用 2.1，不要求附上本协议全文。
+
+    If you publish a modified version of this software (in software form), you
+    must retain this license and the original attribution in the root of the
+    published repository, without removal, replacement, or obfuscation of
+    "插件·2代小星辰、辰启星明". If what you publish is a media work, only clause
+    2.1 applies, and you are not required to include this license in full.
+
+【3】贡献授权 / Contributions
+
+3.1 以 Pull Request、补丁或等效代码提交形式向本项目提交的贡献，视为同意
+    以本协议授权，并允许著作权人另行以其他协议对外授权（含商业授权）。
+    仅在 Issue 中提出想法、报告问题或参与讨论，不构成本条所称的「贡献」。
+
+    A contribution means code submitted as a pull request, patch, or equivalent
+    code change. By submitting one, you license it to the copyright holders under
+    these terms, and grant the copyright holders the right to license it under
+    other terms, including commercially. Posting ideas, bug reports, or discussion
+    comments in issues does not constitute a contribution under this clause.
+
+3.2 没有这一条，著作权人无法在接收外部贡献的同时提供商业授权。
+
+    Without this clause, the copyright holders could not accept outside
+    contributions and still offer commercial licenses.
+
+【4】名称与标识 / Names and Marks
+
+4.1 本协议不授予「星辰会议室」「dsh-LittleStar-meeting」等名称、标识及相关
+    品牌元素的任何使用权 —— 包括与之近似、易致混淆的名称（例如
+    「dsh-LittleStar-meeting-fork」「星辰会议室 Pro」「StarMeeting」等）。
+
+    你可以如实说明「本项目基于 dsh-LittleStar-meeting」，但不得：
+    (a) 以上述名称或其近似名称自称；
+    (b) 使用原作者的图标、头像等标识；
+    (c) 作出非事实性的作者署名（如隐瞒原作者，或自称原作者）；
+    (d) 让人误以为你的版本是原作者的官方版本。
+
+    These terms grant no right to use the names "星辰会议室" or
+    "dsh-LittleStar-meeting", or related marks — including confusingly similar
+    names. You may truthfully state that your work is based on
+    dsh-LittleStar-meeting, but you may not: (a) call your version by those
+    names or confusingly similar ones; (b) use the original author's icons or
+    avatars; (c) make any non-factual attribution, such as concealing the
+    original authors or claiming to be them; (d) present your version as the
+    original or as an official build.
+
+【5】协议版本 / License Versions
+
+5.1 著作权人保留在今后发布本协议新版本的权利。新版本仅适用于其发布之后
+    对外分发的副本；在此之前的副本，继续适用其获得时的版本。
+
+    The copyright holders reserve the right to publish new versions of these
+    terms. A new version applies only to copies distributed after its
+    publication; copies distributed before that continue under the version in
+    effect when they were obtained.
+
+───────────────────────────────────────────────────────────────────
+商业授权洽询 / Commercial licensing enquiries
+如欲将本软件用于任何商业目的，须事先取得著作权人的书面授权。
+Any commercial use requires prior written permission from the copyright holders.
+───────────────────────────────────────────────────────────────────
+
+═══════════════════════════════════════════════════════════════════
+主协议全文 / Main License
+PolyForm Noncommercial License 1.0.0
+https://polyformproject.org/licenses/noncommercial/1.0.0
+═══════════════════════════════════════════════════════════════════
+
+PolyForm Noncommercial License 1.0.0
+
+https://polyformproject.org/licenses/noncommercial/1.0.0
+
+## Acceptance
+
+In order to get any license under these terms, you must agree to them as both
+strict obligations and conditions to all your licenses.
+
+## Copyright License
+
+The licensor grants you a copyright license for the software to do everything
+you might do with the software that would otherwise infringe the licensor's
+copyright in it for any permitted purpose. However, you may only distribute the
+software according to [Distribution License] and make changes or new works based
+on the software according to [Changes and New Works License].
+
+## Distribution License
+
+The licensor grants you an additional copyright license to distribute copies of
+the software. Your license to distribute covers distributing the software with
+changes and new works permitted by [Changes and New Works License].
+
+## Notices
+
+You must ensure that anyone who gets a copy of any part of the software from you
+also gets a copy of these terms or the URL for them above, as well as copies of
+any plain-text lines beginning with `Required Notice:` that the licensor provided
+with the software. For example:
+
+> Required Notice: Copyright Yoyodyne, Inc. (http://example.com)
+
+## Changes and New Works License
+
+The licensor grants you an additional copyright license to make changes and new
+works based on the software for any permitted purpose.
+
+## Patent License
+
+The licensor grants you a patent license for the software that covers patent
+claims the licensor can license, or becomes able to license, that you would
+infringe by using the software.
+
+## Noncommercial Purposes
+
+Any noncommercial purpose is a permitted purpose.
+
+## Personal Uses
+
+Personal use for research, experiment, and testing for the benefit of public
+knowledge, personal study, private entertainment, hobby projects, amateur
+pursuits, or religious observance, without any anticipated commercial
+application, is use for a permitted purpose.
+
+## Noncommercial Organizations
+
+Use by any charitable organization, educational institution, public research
+organization, public safety or health organization, environmental protection
+organization, or government institution is use for a permitted purpose
+regardless of the source of funding or obligations resulting from the funding.
+
+## Fair Use
+
+You may have "fair use" rights for the software under the law. These terms do
+not limit them.
+
+## No Other Rights
+
+These terms do not allow you to sublicense or transfer any of your licenses to
+anyone else, or prevent the licensor from granting licenses to anyone else.
+These terms do not imply any other licenses.
+
+## Patent Defense
+
+If you make any written claim that the software infringes or contributes to
+infringement of any patent, your patent license for the software granted under
+these terms ends immediately. If your company makes such a claim, your patent
+license ends immediately for work on behalf of your company.
+
+## Violations
+
+The first time you are notified in writing that you have violated any of these
+terms, or done anything with the software not covered by your licenses, your
+licenses can nonetheless continue if you come into full compliance with these
+terms, and take practical steps to correct past violations, within 32 days of
+receiving notice. Otherwise, all your licenses end immediately.
+
+## No Liability
+
+As far as the law allows, the software comes as is, without any warranty or
+condition, and the licensor will not be liable to you for any damages arising
+out of these terms or the use or nature of the software, under any kind of
+legal claim.
+
+## Definitions
+
+The **licensor** is the individual or entity offering these terms, and the
+**software** is the software the licensor makes available under these terms.
+
+**You** refers to the individual or entity agreeing to these terms.
+
+**Your company** is any legal entity, sole proprietorship, or other kind of
+organization that you work for, plus all organizations that have control over,
+are under the control of, or are under common control with that organization.
+**Control** means ownership of substantially all the assets of an entity, or the
+power to direct its management and policies by vote, contract, or otherwise.
+Control can be direct or indirect.
+
+**Your licenses** are all the licenses granted to you for the software under
+these terms.
+
+**Use** means anything you do with the software requiring one of your licenses.
+
+© PolyForm Project Inc.
