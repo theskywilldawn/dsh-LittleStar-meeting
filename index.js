@@ -74,11 +74,98 @@ const LOOPBACK_HOSTS = new Set(['127.0.0.1', 'localhost', '::1', '[::1]']);
 const ZONE = 'Asia/Shanghai';
 const ROSTER_TTL_MS = 15_000;
 const DEFAULT_WAIT_S = 300;
+
+/**
+ * 「本轮状态：进行中」→ 最多续投几次。
+ *
+ * **为什么要有这个数**（2026-10-31）：模板从 10-15 起就在让成员报「进行中」，
+ * 但全源码**没有任何一行代码读它** —— 成员写完照样结算，那句话没有任何后果。
+ * 加了后果之后，如果不设上限，一个每次都报「进行中」的成员会把机制变成
+ * 无限循环：投一次、他报进行中、再投一次…… 比死字段更糟。
+ *
+ * 取 2：第一次是给机会把活干完，第二次就必须收尾或说清卡在哪。
+ * 超了 2 次仍然报「进行中」的，照常结算，但 `resumed` 字段会留在纪要里 ——
+ * 主持人该看见"这位叫了两遍还没干完"，而不是被悄悄吞掉。
+ */
+const RESUME_MAX = 2;
+
+/**
+ * 这一位是不是把本轮报成了「进行中」。
+ *
+ * 只看**最后两行**，而且要匹配完整的「本轮状态：<值>」：
+ *   · 第一版取最后三行做裸匹配，被测试打回来了 —— 正文里引用一句
+ *     「模板让我写本轮状态：进行中」就会误判，于是机制会去续投一个其实
+ *     已经写完的人。误判的代价是白白多投一轮、多烧一遍上下文。
+ *   · 现在只认状态行本身，并且**取最后出现的那一条**：
+ *     万一有人先写进行中、又补一行已完成，以最后的为准。
+ *   · 两行而不是一行：容忍状态行后面跟一句吐槽或空行。
+ * 认不出（没写、写了别的词）一律当「没说进行中」—— 保守方向，
+ * 宁可少续投一次，也不要平白多叫人一轮。
+ */
+function saysInProgress(text) {
+  const tail = String(text ?? '').replace(/\s+$/, '').split(/\r?\n/).slice(-2).join('\n');
+  const hits = [...tail.matchAll(/本轮状态\s*[:：]\s*(进行中|已完成)/g)];
+  if (hits.length === 0) return false;
+  return hits[hits.length - 1][1] === '进行中';
+}
+
+/**
+ * 会后待办的四栏（2026-11-01 加）。
+ *
+ * **为什么卡在这里**：翻了本机 70 份真实纪要，16 场会一共留下 153 条待办，
+ * 其中 98 条（64%）连「做完没有」都判不了 ——「以后写记忆先自查」「先跟用户确认 VPS」
+ * 这种是态度和方向，不是可交付物。而做成了的那两条（`_settle.py`、主持规程），
+ * 恰好都写清了产出物和验收数。
+ *
+ * 所以：**一条没法判的待办，等于没有待办** —— 它只会让下次开会的人以为事情有人管。
+ * 四栏缺一栏就拒绝收会，这是硬拦，不是提醒。
+ *
+ * 字段：
+ *   · 谁   —— 谁负责（代号或会话）
+ *   · 在哪 —— 文件路径 / 哪台机器 / 哪个会话。跨机器的线（比如量化的 /opt/quant/）
+ *             缺这栏，下次谁去核都不知道该去哪看
+ *   · 做   —— 具体做什么
+ *   · 验收 —— 怎么证明做完了：命令+期望输出、文件里有某节、或「问过用户并得到答复」
+ */
+const ACTION_FIELDS = ['谁', '在哪', '做', '验收'];
+
+/** 拆一行待办成四栏。容忍 `- `、`- [ ] ` 前缀，全角/半角竖线和等号都收。 */
+function parseActionLine(line) {
+  const body = String(line ?? '')
+    .trim()
+    .replace(/^\s*[-*]\s*(\[[ xX]\]\s*)?/, '')
+    .trim();
+  if (!body) return null;
+  const parts = {};
+  for (const seg of body.split(/[｜|]/)) {
+    // 用 `(.*)` 而不是 `(.+?)`：后者会把 `谁= ｜` 里那个空格当成值，
+    // 于是「写了字段名但没填内容」这种最该拦的情况反而被放过（2026-11-01 单测抓到的）。
+    // 取到值之后 trim，空的就不算填过。
+    const m = seg.match(/^\s*(谁|在哪|做|验收)\s*[=＝:：]\s*(.*)$/);
+    if (!m) continue;
+    const value = m[2].trim();
+    if (value) parts[m[1]] = value;
+  }
+  const missing = ACTION_FIELDS.filter((f) => !parts[f]);
+  return { body, parts, missing };
+}
+
+/** 校验整段 actions；返回缺栏的行（空数组 = 合规）。 */
+function findBadActions(raw) {
+  const lines = String(raw ?? '').split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const bad = [];
+  for (const line of lines) {
+    const parsed = parseActionLine(line);
+    if (parsed && parsed.missing.length > 0) bad.push(parsed);
+  }
+  return bad;
+}
+
 /**
  * 真人席位单次等待上限（毫秒）。
  *
  * 2026-10-19 两次教训叠出来的数：
- *   · 第一次 300 秒，法官给了 200 → 哥哥正在打字，被跳过；
+ *   · 第一次 300 秒，法官给了 200 → 用户正在打字，被跳过；
  *   · 第二次收到 120 秒，结果**更糟** —— 他的原话：「11 个小星辰白天发言完，我才刚看完
  *     第一个说了什么，这时候就已经开始计时了，等我把剩下十个人的发言看完，时间已经
  *     所剩无几。」
@@ -161,7 +248,7 @@ export function apply(ctx, config) {
   let recentHost = null;
 
   /**
-   * 纪要文件名：`议题-日期-主持人.md`（2026-10-25 哥哥定）。
+   * 纪要文件名：`议题-日期-主持人.md`（2026-10-25 用户定）。
    *
    * 以前是 `<房间号>.md`，翻纪要时满屏 `mtg-20261024-0274ce.md`，谁也认不出哪场是哪场。
    * 房间号仍然是主键，只是**不再当文件名**；文件名里的三个字段都能一眼读懂。
@@ -302,7 +389,7 @@ export function apply(ctx, config) {
   }
 
   /**
-   * 弹出**会议准备页**（2026-10-16 哥哥定的入口：打 `/meeting` 就该看到它）。
+   * 弹出**会议准备页**（2026-10-16 用户定的入口：打 `/meeting` 就该看到它）。
    *
    * 端口怎么找跟 `openLive` 完全一样（`lib/webport.js` 多路探测 + 实测确认），
    * 区别只是这里拼的是 `/setup` 而不是 `/live/<房间号>`。
@@ -348,7 +435,7 @@ export function apply(ctx, config) {
 
   /**
    * 参会准入：谁能走进会议室。
-   * 规则见 lib/admit.js —— **微信端与 QQ 群一律挡在门外**，只有哥哥点名的那个
+   * 规则见 lib/admit.js —— **微信端与 QQ 群一律挡在门外**，只有用户点名的那个
    * QQ 私聊会话例外。cfg 是热读的，所以在设置里改完规则下一步就生效。
    */
   const admitPolicy = () => normalizeAdmitPolicy(cfg.get().admit);
@@ -539,7 +626,7 @@ export function apply(ctx, config) {
   /**
    * 人类席位的"发言" —— 投递不到他，只能停下来等他在会场页面上写。
    *
-   * 2026-10-19 加：哥哥真玩了一局后指出的第一条。他还没开口，其他小星辰已经
+   * 2026-10-19 加：用户真玩了一局后指出的第一条。他还没开口，其他小星辰已经
    * 说完并投完票，整条流程是错位的。人类既然坐了那个位子，就得占住轮次里的位置。
    *
    * 他的发言走 `POST /api/room/<id>/say`：那条路由发现"正好轮到他"时，会把记录
@@ -628,24 +715,72 @@ export function apply(ctx, config) {
 
     meetingConsole.note(room.id, `▷ 请 ${memberLabel(member)}（第 ${room.round} 轮 · 第 ${member.order} 位）发言…`);
     const started = Date.now();
-    const result = await relay.relay({
+    // 这条 source 是需求 6 的全部秘密：kind 不是 'user'，Chat 就不会把它当"人说的话"，
+    // 而是渲染成一张折叠的 turn-trigger 卡片（标题+时间，正文要点开），会议内容
+    // 因此不再铺开在成员的会话界面里。见 lib/relay.js 顶部注释。
+    const sourceOf = (resumed) => ({
+      summary: `星辰会议室 · 第 ${room.round} 轮 · ${memberLabel(member)}`
+        + (resumed > 0 ? `（续 ${resumed}）` : ''),
+      roomId: room.id,
+      round: room.round,
+      seat: member.order,
+      topic: room.topic,
+    });
+    let result = await relay.relay({
       sessionId: member.sessionId,
       text: prompt,
       token,
-      // 这条 source 是需求 6 的全部秘密：kind 不是 'user'，Chat 就不会把它当"人说的话"，
-      // 而是渲染成一张折叠的 turn-trigger 卡片（标题+时间，正文要点开），会议内容
-      // 因此不再铺开在成员的会话界面里。见 lib/relay.js 顶部注释。
-      source: {
-        summary: `星辰会议室 · 第 ${room.round} 轮 · ${memberLabel(member)}`,
-        roomId: room.id,
-        round: room.round,
-        seat: member.order,
-        topic: room.topic,
-      },
+      source: sourceOf(0),
       markWaitMs: waitMs,
       replyWaitMs: waitMs,
       signal,
     });
+
+    // 「进行中」不是一个完成 —— 续投，直到他收尾或用满 RESUME_MAX。
+    // 没有这一段，「进行中」就只是一句没人读的话（2026-10-31 实测：
+    // 全源码只有模板写过它，没有任何一行读它，成员写完照样结算）。
+    // 遗言（noAdvance）不续投 —— 那是最后一次公开发言，没有再问一次的道理。
+    let resumeAt = 0;
+    while (resumeAt < RESUME_MAX && !noAdvance && saysInProgress(result.text)) {
+      resumeAt += 1;
+      meetingConsole.note(room.id,
+        `↻ ${memberLabel(member)} 报了「进行中」，续投第 ${resumeAt}/${RESUME_MAX} 次`);
+      logEvent(room, 'speak.resume', {
+        round: room.round, seat: member.order, attempt: resumeAt,
+      });
+      const resumeToken = newToken();
+      const retried = await relay.relay({
+        sessionId: member.sessionId,
+        text: formatSpeakingPrompt(room, member, resumeToken, {
+          note: note || null,
+          recentCount: settings.contextRecentCount,
+          speechLimitChars: settings.speechLimitChars,
+          resumeAt,
+          resumeMax: RESUME_MAX,
+        }),
+        token: resumeToken,
+        source: sourceOf(resumeAt),
+        markWaitMs: waitMs,
+        replyWaitMs: waitMs,
+        signal,
+      });
+      // 续投回来的结果不能无条件覆盖：取消 / 超时且一个字没回时它是空的，
+      // 覆盖上去就把**第一次那段真内容**一起吞掉了 —— 那比不续投更糟。
+      // 只有真拿到东西才换，拿不到就留着上一次的，并且说出来。
+      if (retried.ok || retried.text.length > 0) {
+        result = retried;
+      } else {
+        meetingConsole.note(room.id,
+          `⚠️ ${memberLabel(member)} 续投第 ${resumeAt} 次没拿到回复（${retried.error ?? retried.phase}），保留上一次的内容`);
+        break;
+      }
+    }
+    if (resumeAt >= RESUME_MAX && saysInProgress(result.text)) {
+      // 叫了两遍还是「进行中」：照常结算，但把这件事说出来 ——
+      // 悄悄吞掉才是真问题，主持人得知道这位没干完。
+      meetingConsole.note(room.id,
+        `⚠️ ${memberLabel(member)} 续投 ${RESUME_MAX} 次仍报「进行中」，按未收尾结算`);
+    }
 
     const solved = result.ok || (result.phase === 'timeout-reply' && result.text.length > 0);
     const { item, roundCompleted } = record(room, {
@@ -658,6 +793,7 @@ export function apply(ctx, config) {
       timedOut: !result.ok,
       error: result.ok ? null : (solved ? '超时，只收到部分内容' : result.error),
       noAdvance,
+      resumed: resumeAt,
       ...visibility,
     });
     logEvent(room, 'speak.result', {
@@ -707,7 +843,7 @@ export function apply(ctx, config) {
   /**
    * 法官对**真人**的私聊：投递不到，就落一条他能在会场页面看到的记录，然后**等他回话**。
    *
-   * 2026-10-19 哥哥要求的两件事：
+   * 2026-10-19 用户要求的两件事：
    *   ① 他面板上要看得见法官说了什么 —— 这条记录 audience 只有 `user:self`，
    *      页面能显示，其他小星辰的投递按 audience 过滤直接挡掉；
    *   ② 法官得**真的等** —— 之前这里写完就立刻返回，法官以为他答了、其实一个字
@@ -1818,7 +1954,7 @@ export function apply(ctx, config) {
 
         if (args?.silent !== true) {
           // 真人席位（2026-10-19 修）：他没有"投递"这条路，角色卡**只能**写进记录里。
-          // 哥哥上一局就是这么踩的 —— 开局没收到自己是什么身份、预言家查完人也没收到
+          // 用户上一局就是这么踩的 —— 开局没收到自己是什么身份、预言家查完人也没收到
           // 查验结果，全靠猜。现在 human 的卡直接落成一条 humanPrivate 记录，
           // 会场页面能看到正文，别的成员照样看不到。
           const isHuman = member.human === true;
@@ -1978,7 +2114,12 @@ export function apply(ctx, config) {
       roomId: { type: 'string', description: '房间号；省略时用你正在主持的那间' },
       summary: { type: 'string', description: '你对整场会议的总结（必填，这是提交给用户的正文）' },
       conclusions: { type: 'string', description: '会议达成的结论，一行一条' },
-      actions: { type: 'string', description: '会后待办 / 下一步，一行一条' },
+      actions: {
+        type: 'string',
+        description: '会后待办，一行一条。**每行必须写全四栏**：谁= ｜ 在哪= ｜ 做= ｜ 验收='
+          + '（「在哪」写文件路径 / 哪台机器 / 哪个会话；「验收」写怎么证明做完了，'
+          + '比如命令 + 期望输出）。缺任何一栏都会拒绝收会。这场会只是讨论、没有要做的事，就不要传。',
+      },
     },
     output: { schema: { type: 'json' }, render: (_a, v) => textOut(v.message) },
     async execute(args, exec) {
@@ -1991,6 +2132,33 @@ export function apply(ctx, config) {
       if (room.status === ROOM_CLOSED) return fail(`房间 ${room.id} 已经结束过了（${fmtTime(room.closedAt, ZONE)}）。`);
       const summary = String(args?.summary ?? '').trim();
       if (!summary) return fail('summary 不能为空——那是要提交给用户的会议成果。');
+
+      // 待办四栏必须齐全（理由见 ACTION_FIELDS 的注释）。
+      // ⚠️ 顺序很重要：**必须在改 room.status 之前拦**。放在后面的话，会议已经被判结束了，
+      // 主持人改完待办还得重开一间房 —— 一封本来能救的信，被自己的校验弄丢了。
+      const badActions = findBadActions(args?.actions);
+      if (badActions.length > 0) {
+        const lines = [
+          '待办格式不对，收不了会。',
+          '',
+          '每条待办必须写全四栏 —— 缺一栏，下次谁都不知道该去哪核、核什么：',
+          '  谁= ｜ 在哪= ｜ 做= ｜ 验收=',
+          '',
+          '例：',
+          '  谁=插件·5代 ｜ 在哪=docs/主持人监督规程.md ｜ 做=补「待办四栏」一节'
+            + ' ｜ 验收=文件里有这一节且带一条合规示例',
+          '',
+          '缺栏的行：',
+          ...badActions.map((b) => `  · ${b.body}\n    缺：${b.missing.join('、')}`),
+          '',
+          '「在哪」要写清楚：文件路径、哪台机器、或哪个会话。跨机器的活（比如远程服务器上的脚本）'
+            + '不写这栏，事后没人找得到。',
+          '「验收」要写能被人复核的东西：命令 + 期望输出、文件里有什么、或者「问过用户并得到答复」。',
+          '',
+          '如果这场会只是讨论、确实没有要做的事，actions 就别传 —— 空着比写假的好。',
+        ];
+        return fail(lines.join('\n'));
+      }
 
       room.status = ROOM_CLOSED;
       room.closedAt = Date.now();
@@ -2349,7 +2517,7 @@ export function apply(ctx, config) {
       return { kind: 'error', text: `不认识的子命令：${word}\n\n${MEETING_USAGE}` };
     }
 
-    // 不带子命令 = **弹出会议准备页**（2026-10-16 哥哥定的入口）。
+    // 不带子命令 = **弹出会议准备页**（2026-10-16 用户定的入口）。
     // 想看当前这一场的状态就打 `/meeting status`，两条路各走各的。
     if (word === '') {
       const setup = await openSetup();
@@ -2541,7 +2709,7 @@ export function apply(ctx, config) {
     const loaded = await roster();
     if (loaded.error) throw new Error(loaded.error);
     // 已封存的会话直接排除 —— 投递进去会被归档门挡下，选进来只会白等
-    // （2026-10-19 哥哥发现准备页还能选到封存的小星辰）
+    // （2026-10-19 用户发现准备页还能选到封存的小星辰）
     const byId = new Map(
       loaded.entries.filter((e) => !(e.sealed?.archived)).map((e) => [String(e.sessionId), e]),
     );
@@ -2565,7 +2733,7 @@ export function apply(ctx, config) {
         + '主持人是独立席位，请二选一');
     }
 
-    // 座位顺序（2026-10-19 哥哥要求）：默认按点选先后；选「随机」就当场洗牌。
+    // 座位顺序（2026-10-19 用户要求）：默认按点选先后；选「随机」就当场洗牌。
     // 狼人杀里座位号会被写进发言顺序、警徽流、「刀 N 号」，所以「谁坐几号」本身也是信息，
     // 一直按点选顺序来等于给所有人固定剧本。洗牌用 crypto，不写死种子。
     if (input?.seatOrder === 'random') {
@@ -2611,7 +2779,7 @@ export function apply(ctx, config) {
       rules,
       board: kind === 'werewolf' ? (WOLF_BOARDS[size] ?? null) : null,
       // 用户自己指定的身份（空 = 交给法官随机）。插件不替他发，只在开局信里
-      // 告诉法官"他想当这个"（2026-10-19 哥哥要求能自选身份）。
+      // 告诉法官"他想当这个"（2026-10-19 用户要求能自选身份）。
       myRole: kind === 'werewolf' && typeof input?.myRole === 'string' && input.myRole.trim()
         ? input.myRole.trim().slice(0, 20)
         : null,
@@ -2632,7 +2800,7 @@ export function apply(ctx, config) {
         : Math.max(0, Math.min(wantSeat - 1, room.members.length));
       room.members.splice(at, 0, {
         sessionId: USER_SEAT_ID,
-        title: '你（哥哥）',
+        title: '你（用户）',
         cwd: null,
         order: at + 1,
         joinedAt: Date.now(),
@@ -2742,7 +2910,7 @@ export function apply(ctx, config) {
           roster().then((loaded) => {
             if (loaded.error) { json(500, { ok: false, error: loaded.error }); return; }
             // 已封存（归档）的会话不该出现在名单里 —— 选进来也投递不到，
-            // 点了只会白等（2026-10-19 哥哥在准备页看到封存的小星辰还能选）。
+            // 点了只会白等（2026-10-19 用户在准备页看到封存的小星辰还能选）。
             const inviteable = loaded.entries.filter((m) => !(m.sealed?.archived));
             sendPage(() => renderSetupHtml({
               route: ROUTE,
@@ -2850,7 +3018,7 @@ export function apply(ctx, config) {
             {
               keepHumanPrivate: true,
               // 上警发言是 `audience = 全体`。对其他 AI 是公开的，但在脱敏这条路上
-              // 会被当成私聊抹掉 —— 2026-10-19 哥哥就是这么一个字都没看到。
+              // 会被当成私聊抹掉 —— 2026-10-19 用户就是这么一个字都没看到。
               // 传 userSeatId，「audience 里包含真人」的记录就按"给真人看的"保留。
               userSeatId: USER_SEAT_ID,
               // 11 个人的夜间私聊各留一句「（私聊内容，不入档）」占位，页面几十屏空白。
@@ -2899,7 +3067,7 @@ export function apply(ctx, config) {
             }
             try {
               const clipped = text.slice(0, 4000);
-              // 2026-10-19 哥哥要的两件事都落在这里：
+              // 2026-10-19 用户要的两件事都落在这里：
               // ①「to: 'host'」= 只发给法官的悄悄话；不传就是对全场说。
               // ②正好轮到他发言时，这条记录就是**他这一轮的发言**（record 会推进游标）；
               //   不是轮到他，就只是插话、不占位。
